@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13e817ed-7721-4b07-9ade-1ea0af5cc8a4" name="Changes" comment="" />
+    <list default="true" id="13e817ed-7721-4b07-9ade-1ea0af5cc8a4" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,10 +15,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0,
-  "fromUser": false
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3FCvmmhJgod1Aq1xKwd5vLHgQ83" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -36,7 +38,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.intellij.python.ruff.RuffConfigurable",
+    "settings.editor.selected.configurable": "com.devoxx.genie.DevoxxGenie",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -56,6 +58,10 @@
       <option name="presentableId" value="Default" />
       <updated>1781592027151</updated>
       <workItem from="1781592028183" duration="1686000" />
+      <workItem from="1781603520122" duration="796000" />
+      <workItem from="1781608760769" duration="93000" />
+      <workItem from="1781608989940" duration="2337000" />
+      <workItem from="1781611336922" duration="475000" />
     </task>
     <servers />
   </component>

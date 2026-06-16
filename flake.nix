@@ -16,7 +16,11 @@
         python3Packages.pip
         python3Packages.virtualenv
         black       
-        ruff     
+        ruff
+        # Proxy Middleware Dependencies
+        python3Packages.fastapi
+        python3Packages.uvicorn
+        python3Packages.httpx
       ];
 
       # 2. Automate the local virtual environment creation
