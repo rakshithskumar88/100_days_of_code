@@ -1,0 +1,19 @@
+# --- Python Virtual Environments ---
+.venv/
+venv/
+ENV/
+__pycache__/
+*.pyc
+
+# --- Nix & Direnv Caches ---
+.direnv/
+result
+result-*
+
+# --- PyCharm/JetBrains IDE Caches ---
+.idea/
+*.iml
+
+# --- System & Misc Garbage ---
+.DS_Store
+Thumbs.db
