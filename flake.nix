@@ -16,7 +16,7 @@
         python3Packages.pip
         python3Packages.virtualenv
         black       
-        pylint      
+        ruff     
       ];
 
       # 2. Automate the local virtual environment creation
