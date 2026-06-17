@@ -17,3 +17,6 @@ result-*
 # --- System & Misc Garbage ---
 .DS_Store
 Thumbs.db
+
+# --- Environment Variables ---
+.envrc
