@@ -14,6 +14,9 @@ result-*
 .idea/
 *.iml
 
+# --- Node module folder ---
+node_modules/
+
 # --- System & Misc Garbage ---
 .DS_Store
 Thumbs.db
