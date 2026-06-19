@@ -1,6 +1,8 @@
 import os
 import json
 import logging
+import fnmatch
+from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 import httpx
@@ -33,13 +35,13 @@ PROVIDERS = [
         "name": "SambaNova",
         "url": "https://api.sambanova.ai/v1/chat/completions",
         "key": os.getenv("SAMBANOVA_API_KEY", "").strip(),
-        "model": "Llama-4-Maverick-17B-128E-Instruct",  # Verified 2026 SambaNova Llama 4 Model ID
+        "model": "Llama-4-Maverick-17B-128E-Instruct",
     },
     {
         "name": "Cerebras",
         "url": "https://api.cerebras.ai/v1/chat/completions",
         "key": os.getenv("CEREBRAS_API_KEY", "").strip(),
-        "model": "gpt-oss-120b",  # Official Cerebras migration path for deprecated Llama models
+        "model": "gpt-oss-120b",
     },
 ]
 
@@ -82,6 +84,96 @@ When the student is genuinely stuck, facing unhandled exceptions, or looping on 
 Your tone is encouraging, brief, and ruthlessly analytical.
 """
 
+# =====================================================================
+# 3. SECURITY & MCP ACCESS CONTROL (MIDDLEWARE INTERCEPTOR)
+# =====================================================================
+# Extracted directly from project rules and system dependencies[cite: 2]
+RESTRICTED_PATTERNS = [
+    # Python Virtual Environments[cite: 2]
+    ".venv",
+    "venv",
+    "ENV",
+    "__pycache__",
+    "*.pyc",
+    # Nix & Direnv Caches[cite: 2]
+    ".direnv",
+    "result",
+    "result-*",
+    ".envrc",
+    # IDE & Node Caches[cite: 2]
+    ".idea",
+    "*.iml",
+    "node_modules",
+    # System Garbage[cite: 2]
+    ".DS_Store",
+    "Thumbs.db",
+    # Strict Self-Preservation[cite: 2]
+    ".gitignore",
+    ".git",
+]
+
+
+def is_path_restricted(filepath: str) -> bool:
+    """Evaluates if any segment of a path matches restricted wildcard patterns."""
+    path_obj = Path(filepath)
+    # Checking each path part ensures directory-level bans (e.g., node_modules/file.js) are caught
+    for part in path_obj.parts:
+        for pattern in RESTRICTED_PATTERNS:
+            if fnmatch.fnmatch(part, pattern):
+                return True
+    return False
+
+
+def enforce_mcp_guardrails(llm_response_dict: dict) -> dict:
+    """
+    Scans the JSON response for filesystem tool calls and blocks blacklisted paths.
+    Mutates the tool call payload to prevent PyCharm Event Dispatch crashes.
+    """
+    if "choices" not in llm_response_dict:
+        return llm_response_dict
+
+    for choice in llm_response_dict.get("choices", []):
+        message = choice.get("message", {})
+        if "tool_calls" in message:
+            for tool_call in message["tool_calls"]:
+                func = tool_call.get("function", {})
+                func_name = func.get("name", "")
+
+                # Covers all standard MCP filesystem tooling capabilities
+                if func_name in [
+                    "read_file",
+                    "read_text_file",
+                    "read_multiple_files",
+                    "write_file",
+                    "edit_file",
+                    "list_directory",
+                    "get_file_info",
+                    "search_files",
+                    "directory_tree",
+                ]:
+                    try:
+                        args = json.loads(func.get("arguments", "{}"))
+                        filepath = args.get(
+                            "path", args.get("dir_path", args.get("filePath", ""))
+                        )
+
+                        if filepath and is_path_restricted(filepath):
+                            logger.warning(
+                                f"SECURITY INTERCEPT: Blocked AI access to restricted path: {filepath}"
+                            )
+
+                            # Gracefully deny the AI by converting it to an error-handling tool
+                            tool_call["function"]["name"] = "system_error"
+                            tool_call["function"]["arguments"] = json.dumps(
+                                {
+                                    "error": f"SYSTEM DENIAL: Access to '{filepath}' is restricted by project security and .gitignore policies."
+                                }
+                            )
+                    except json.JSONDecodeError:
+                        pass
+
+    return llm_response_dict
+
 
 # =====================================================================
 # HEALTH CHECK (Prevents PyCharm Settings Freeze)
@@ -102,15 +194,15 @@ async def chat_proxy(request: Request):
     payload = await request.json()
     messages = payload.get("messages", [])
 
-    # Inject the Socratic Persona
+    # Inject the Socratic Persona[cite: 1]
     filtered_messages = [msg for msg in messages if msg.get("role") != "system"]
     filtered_messages.insert(0, {"role": "system", "content": SOCRATIC_TUTOR_PROMPT})
     payload["messages"] = filtered_messages
 
-    # Strip parameters that some providers reject
+    # Strip parameters that some providers reject[cite: 1]
     payload.pop("max_completion_tokens", None)
 
-    # Detect if DevoxxGenie is requesting a stream (Agent Mode usually sets this to False)
+    # Detect if DevoxxGenie is requesting a stream[cite: 1]
     is_streaming = payload.get("stream", False)
 
     if is_streaming:
@@ -188,7 +280,9 @@ async def chat_proxy(request: Request):
                         )
                         continue
 
-                    return JSONResponse(content=resp.json())
+                    # APPLY THE MIDDLEWARE GUARDRAILS
+                    safe_response_data = enforce_mcp_guardrails(resp.json())
+                    return JSONResponse(content=safe_response_data)
 
                 except Exception as e:
                     logger.error(f"Network error with {provider['name']}: {e}")
