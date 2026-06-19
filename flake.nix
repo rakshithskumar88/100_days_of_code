@@ -21,6 +21,8 @@
         python3Packages.fastapi
         python3Packages.uvicorn
         python3Packages.httpx
+        # MCP Server Dependencies
+        nodejs
       ];
 
       # 2. Automate the local virtual environment creation
