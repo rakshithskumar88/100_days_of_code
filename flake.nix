@@ -21,6 +21,8 @@
         python3Packages.fastapi
         python3Packages.uvicorn
         python3Packages.httpx
+        # CLI time tracking engine
+        timewarrior
         # MCP Server Dependencies
         nodejs
       ];
