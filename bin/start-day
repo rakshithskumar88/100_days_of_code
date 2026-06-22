@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ]; then
+    echo "Error: Please provide the day number. Example: start-day 01"
+    exit 1
+fi
+
+DAY_NUM=$(printf "%03d" $1)
+
+# Start the Timewarrior clock with specific tags
+timew start "100_Days_of_Code" "Day_$DAY_NUM" > /dev/null 2>&1
+
+echo "========================================"
+echo " 🚀 Sessional Block: Day $DAY_NUM Started"
+echo " ⏱️  90-Minute Timer is active in the background."
+echo " 🧠 Focus. The Socratic Proxy is ready."
+echo "========================================"
