@@ -1,1 +1,1 @@
-print("Hello " + " " + input("Enter your name: ") + "!" + " " + "Nice to meet you!")
+print(3 * 3 + 3 / 3 - 3)
